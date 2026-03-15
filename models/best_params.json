@@ -1,0 +1,7 @@
+{
+    "n_estimators": 201,
+    "max_depth": 11,
+    "best_cv_accuracy": 0.9960220786746593,
+    "parallel": true,
+    "time_seconds": 121.01072978973389
+}

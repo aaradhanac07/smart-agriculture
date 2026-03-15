@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Agriculture AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--gd:#1a3d2b;--gm:#2d6a4f;--gl:#52b788;--acc:#f4a261;--cream:#f4f7f0;--muted:#6b7c70;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:#1c2b20;min-height:100vh;}
+  .layout{display:flex;min-height:100vh;}
+  .sidebar{width:310px;flex-shrink:0;background:linear-gradient(180deg,#0b1f14 0%,#1a3d2b 50%,#2d6a4f 100%);padding:2rem 1.5rem;position:sticky;top:0;height:100vh;overflow-y:auto;}
+  .sidebar-logo{font-family:'Playfair Display',serif;font-size:1.4rem;color:#d8f3dc;margin-bottom:.2rem;}
+  .sidebar-sub{font-size:.72rem;color:#74c69d;letter-spacing:.08em;text-transform:uppercase;margin-bottom:1.8rem;}
+  .s-section{margin-bottom:1.4rem;}
+  .s-section h3{font-size:.68rem;color:#74c69d;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.9rem;padding-bottom:.3rem;border-bottom:1px solid rgba(255,255,255,.1);}
+  .weather-bar{display:flex;gap:.5rem;margin-bottom:.6rem;}
+  .weather-bar input{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:.5rem .8rem;color:#e8f5e9;font-family:'DM Sans',sans-serif;font-size:.83rem;outline:none;}
+  .weather-bar input::placeholder{color:#74c69d;}
+  .weather-btn{padding:.5rem .8rem;border:none;border-radius:8px;cursor:pointer;font-size:.78rem;font-weight:600;background:rgba(82,183,136,.25);color:#d8f3dc;transition:all .2s;white-space:nowrap;}
+  .weather-btn:hover{background:rgba(82,183,136,.45);}
+  .weather-status{font-size:.73rem;color:#95d5b2;margin-bottom:.8rem;min-height:1rem;}
+  .slider-wrap{margin-bottom:1.1rem;}
+  .slider-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;}
+  .slider-label{font-size:.79rem;color:#b7e4c7;font-weight:500;}
+  .slider-value{font-size:.79rem;color:#f4a261;font-weight:600;background:rgba(244,162,97,.15);padding:.1rem .5rem;border-radius:99px;min-width:52px;text-align:center;}
+  input[type=range]{width:100%;height:4px;border-radius:99px;outline:none;border:none;cursor:pointer;-webkit-appearance:none;background:linear-gradient(90deg,#52b788 0%,#52b788 var(--pct,50%),rgba(255,255,255,.15) var(--pct,50%));}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:#f4a261;border:2px solid white;cursor:pointer;}
+  .predict-btn{width:100%;padding:.9rem;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#f4a261,#e76f51);color:white;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;box-shadow:0 4px 20px rgba(244,162,97,.4);transition:all .2s;margin-top:.5rem;}
+  .predict-btn:hover{transform:translateY(-2px);}
+  .predict-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+  .main{flex:1;padding:2.5rem;overflow-y:auto;}
+  .hero{background:linear-gradient(135deg,#0b1f14 0%,#1a3d2b 45%,#2d6a4f 80%,#40916c 100%);border-radius:24px;padding:2.8rem 3.5rem;margin-bottom:2rem;position:relative;overflow:hidden;box-shadow:0 10px 50px rgba(26,61,43,.25);}
+  .hero::after{content:"🌾";position:absolute;right:3rem;top:50%;transform:translateY(-50%);font-size:10rem;opacity:.1;}
+  .hero h1{font-family:'Playfair Display',serif;font-size:2.8rem;color:white;margin-bottom:.5rem;}
+  .hero p{color:#95d5b2;font-size:.98rem;max-width:500px;}
+  .hero-tags{display:flex;gap:.6rem;margin-top:1.2rem;flex-wrap:wrap;}
+  .hero-tag{padding:.3rem .9rem;border-radius:99px;background:rgba(255,255,255,.1);color:#d8f3dc;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;}
+  .api-badge{padding:.25rem .8rem;border-radius:99px;font-size:.72rem;font-weight:600;}
+  .api-on{background:rgba(82,183,136,.25);color:#52b788;}
+  .api-off{background:rgba(244,162,97,.25);color:#f4a261;}
+  .metrics-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:.7rem;margin-bottom:2rem;}
+  .metric-card{background:white;border-radius:13px;padding:.9rem .6rem;text-align:center;box-shadow:0 2px 14px rgba(0,0,0,.05);border-top:3px solid var(--gl);transition:transform .2s;}
+  .metric-card:hover{transform:translateY(-3px);}
+  .metric-val{font-size:1.35rem;font-weight:700;color:var(--gd);line-height:1.2;}
+  .metric-lbl{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px;}
+  .results{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+  .panel{background:white;border-radius:20px;padding:1.8rem;box-shadow:0 4px 24px rgba(0,0,0,.06);}
+  .panel-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--gd);margin-bottom:1.2rem;padding-bottom:.5rem;border-bottom:2px solid var(--gl);}
+  .crop-result{background:linear-gradient(135deg,#0b1f14,#1a3d2b,#2d6a4f);border-radius:16px;padding:1.8rem;text-align:center;color:white;margin-bottom:1.2rem;position:relative;overflow:hidden;}
+  .crop-result::before{content:"🌱";position:absolute;right:1.5rem;top:1rem;font-size:4rem;opacity:.15;}
+  .crop-sublabel{font-size:.7rem;color:#95d5b2;text-transform:uppercase;letter-spacing:.12em;margin-bottom:.4rem;}
+  .crop-name{font-family:'Playfair Display',serif;font-size:2.5rem;line-height:1;margin-bottom:.4rem;}
+  .crop-conf{font-size:1.1rem;font-weight:600;color:#f4a261;}
+  .real-badge{display:inline-block;margin-top:.6rem;padding:.2rem .7rem;border-radius:99px;font-size:.7rem;font-weight:600;}
+  .real-yes{background:rgba(82,183,136,.3);color:#95d5b2;}
+  .real-no{background:rgba(244,162,97,.2);color:#f4a261;}
+  .prob-item{margin-bottom:.8rem;}
+  .prob-header{display:flex;justify-content:space-between;font-size:.83rem;margin-bottom:4px;}
+  .prob-name{font-weight:500;}
+  .prob-pct{font-weight:700;color:var(--gm);}
+  .prob-track{height:8px;background:#e8f5e9;border-radius:99px;overflow:hidden;}
+  .prob-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#52b788,#1a3d2b);transition:width .8s cubic-bezier(.4,0,.2,1);}
+  .score-display{display:flex;align-items:center;gap:1.5rem;margin-bottom:1.2rem;}
+  .score-num{font-family:'Playfair Display',serif;font-size:5rem;font-weight:800;color:var(--gd);line-height:1;}
+  .score-of{font-size:.75rem;color:var(--muted);}
+  .badge{display:inline-block;padding:.35rem 1rem;border-radius:99px;font-weight:600;font-size:.85rem;margin-bottom:.5rem;}
+  .badge-excellent{background:#d8f3dc;color:#1a3d2b;}
+  .badge-good{background:#d8f3dc;color:#2d6a4f;}
+  .badge-average{background:#fff3cd;color:#7d5a00;}
+  .badge-poor{background:#ffe0e0;color:#8b1a1a;}
+  .score-desc{font-size:.86rem;color:#555;line-height:1.55;}
+  .score-track{height:10px;background:#e8f5e9;border-radius:99px;overflow:hidden;margin-top:1rem;}
+  .score-fill{height:100%;border-radius:99px;transition:width .9s cubic-bezier(.4,0,.2,1);}
+  .fert-item{padding:.65rem 0;border-bottom:1px solid #f0f4f0;font-size:.9rem;line-height:1.5;}
+  .fert-item:last-child{border-bottom:none;}
+  .placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;text-align:center;color:var(--muted);background:white;border-radius:20px;box-shadow:0 4px 24px rgba(0,0,0,.06);grid-column:1/-1;}
+  .placeholder .icon{font-size:4rem;margin-bottom:1rem;opacity:.4;}
+  .placeholder h3{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gd);margin-bottom:.5rem;}
+  .spinner{display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,.3);border-radius:50%;border-top-color:white;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+  .result-anim{animation:fadeUp .5s ease both;}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sidebar-logo">🌱 Smart Agri AI</div>
+  <div class="sidebar-sub">Precision Farming System</div>
+  <div class="s-section">
+    <h3>🌦️ Auto-fill Weather</h3>
+    <div class="weather-bar">
+      <input type="text" id="cityInput" placeholder="City name..." value="Mumbai">
+      <button class="weather-btn" onclick="fetchWeather()">Fetch</button>
+    </div>
+    <div class="weather-status" id="weatherStatus">Start api.py to enable weather auto-fill</div>
+  </div>
+  <div class="s-section">
+    <h3>🧪 Soil Parameters</h3>
+    <div class="slider-wrap">
+      <div class="slider-row"><span class="slider-label">Nitrogen (N) kg/ha</span><span class="slider-value" id="vN">60</span></div>
+      <input type="range" id="sN" min="0" max="140" value="60" oninput="update('N',this.value)">
+    </div>
+    <div class="slider-wrap">
+      <div class="slider-row"><span class="slider-label">Phosphorus (P) kg/ha</span><span class="slider-value" id="vP">50</span></div>
+      <input type="range" id="sP" min="0" max="145" value="50" oninput="update('P',this.value)">
+    </div>
+    <div class="slider-wrap">
+      <div class="slider-row"><span class="slider-label">Potassium (K) kg/ha</span><span class="slider-value" id="vK">50</span></div>
+      <input type="range" id="sK" min="0" max="205" value="50" oninput="update('K',this.value)">
+    </div>
+    <div class="slider-wrap">
+      <div class="slider-row"><span class="slider-label">pH Level</span><span class="slider-value" id="vph">6.5</span></div>
+      <input type="range" id="sph" min="35" max="100" value="65" oninput="update('ph',this.value)">
+    </div>
+  </div>
+  <div class="s-section">
+    <h3>🌦️ Climate Parameters</h3>
+    <div class="slider-wrap">
+      <div class="slider-row"><span class="slider-label">Temperature (°C)</span><span class="slider-value" id="vtemp">25.0</span></div>
+      <input type="range" id="stemp" min="50" max="500" value="250" oninput="update('temp',this.value)">
+    </div>
+    <div class="slider-wrap">
+      <div class="slider-row"><span class="slider-label">Humidity (%)</span><span class="slider-value" id="vhum">65</span></div>
+      <input type="range" id="shum" min="10" max="100" value="65" oninput="update('hum',this.value)">
+    </div>
+    <div class="slider-wrap">
+      <div class="slider-row"><span class="slider-label">Rainfall (mm)</span><span class="slider-value" id="vrain">100</span></div>
+      <input type="range" id="srain" min="20" max="300" value="100" oninput="update('rain',this.value)">
+    </div>
+  </div>
+  <button class="predict-btn" id="predictBtn" onclick="predict()">🚀 Analyze &amp; Predict</button>
+</aside>
+
+<main class="main">
+  <div class="hero">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem">
+      <div>
+        <h1>Smart Agriculture AI</h1>
+        <p>Precision crop recommendations, soil health analysis, and fertilizer intelligence.</p>
+        <div class="hero-tags">
+          <span class="hero-tag">🤖 ML-Powered</span>
+          <span class="hero-tag">🌍 Soil Intelligence</span>
+          <span class="hero-tag">🌦️ Live Weather</span>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="color:#95d5b2;font-size:.7rem;margin-bottom:.4rem">API STATUS</div>
+        <span class="api-badge api-off" id="apiBadge">⏳ Checking...</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="metrics-grid">
+    <div class="metric-card"><div class="metric-val" id="mN">60</div><div class="metric-lbl">Nitrogen</div></div>
+    <div class="metric-card"><div class="metric-val" id="mP">50</div><div class="metric-lbl">Phosphorus</div></div>
+    <div class="metric-card"><div class="metric-val" id="mK">50</div><div class="metric-lbl">Potassium</div></div>
+    <div class="metric-card"><div class="metric-val" id="mph">6.5</div><div class="metric-lbl">pH</div></div>
+    <div class="metric-card"><div class="metric-val" id="mtemp">25°C</div><div class="metric-lbl">Temp</div></div>
+    <div class="metric-card"><div class="metric-val" id="mhum">65%</div><div class="metric-lbl">Humidity</div></div>
+    <div class="metric-card"><div class="metric-val" id="mrain">100mm</div><div class="metric-lbl">Rainfall</div></div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="placeholder">
+      <div class="icon">🌾</div>
+      <h3>Ready to Analyze</h3>
+      <p>Adjust sliders and click <strong>Analyze &amp; Predict</strong> to get your crop recommendation.</p>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+const API="http://localhost:5000";
+const state={N:60,P:50,K:50,ph:6.5,temp:25.0,hum:65,rain:100};
+let apiOnline=false;
+
+async function checkAPI(){
+  try{
+    const r=await fetch(API+"/",{signal:AbortSignal.timeout(2000)});
+    const d=await r.json();
+    apiOnline=true;
+    const b=document.getElementById("apiBadge");
+    b.textContent=d.model_loaded?"🟢 API + Model Online":"🟡 API Online (no model)";
+    b.className="api-badge api-on";
+  }catch{
+    apiOnline=false;
+    const b=document.getElementById("apiBadge");
+    b.textContent="🔴 API Offline — demo mode";
+    b.className="api-badge api-off";
+  }
+}
+
+function update(key,raw){
+  let val,display;
+  if(key==='ph'){val=raw/10;display=val.toFixed(1);}
+  else if(key==='temp'){val=raw/10;display=val.toFixed(1);}
+  else{val=parseFloat(raw);display=val;}
+  state[key]=val;
+  document.getElementById('v'+key).textContent=display;
+  document.getElementById('m'+key).textContent=key==='temp'?display+'°C':key==='hum'?display+'%':key==='rain'?display+'mm':display;
+  const el=document.getElementById('s'+key);
+  el.style.setProperty('--pct',((el.value-el.min)/(el.max-el.min)*100).toFixed(1)+'%');
+}
+
+async function fetchWeather(){
+  const city=document.getElementById("cityInput").value.trim();
+  const status=document.getElementById("weatherStatus");
+  if(!city)return;
+  status.textContent="⏳ Fetching...";
+  try{
+    if(!apiOnline)throw new Error("Start api.py first");
+    const r=await fetch(`${API}/weather?city=${encodeURIComponent(city)}`);
+    const d=await r.json();
+    if(!d.success)throw new Error(d.error);
+    const ts=document.getElementById("stemp");
+    ts.value=Math.min(Math.max(Math.round(d.temperature*10),50),500);
+    update("temp",ts.value);
+    const hs=document.getElementById("shum");
+    hs.value=Math.min(Math.max(d.humidity,10),100);
+    update("hum",hs.value);
+    status.textContent=`✅ ${d.city}: ${d.temperature}°C, ${d.humidity}% — ${d.description}`;
+    status.style.color="#95d5b2";
+  }catch(e){
+    status.textContent="❌ "+e.message;
+    status.style.color="#f4a261";
+  }
+}
+
+// Local fallback logic
+function soilLocal(n,p,k,ph){
+  let s=100;
+  if(n<50||n>120)s-=15;if(p<40||p>100)s-=15;
+  if(k<40||k>100)s-=15;if(ph<5.5||ph>7.5)s-=25;else if(ph>=6&&ph<=7)s+=5;
+  s=Math.max(0,Math.min(100,s));
+  return{score:s,level:s>=85?"Excellent":s>=70?"Good":s>=50?"Average":"Poor"};
+}
+function fertLocal(n,p,k){
+  return[
+    n<50?"🔴 Nitrogen is LOW → add Urea / Nitrogen fertilizer.":n>120?"🟡 Nitrogen is HIGH → reduce nitrogen fertilizer.":"🟢 Nitrogen is OPTIMAL.",
+    p<40?"🔴 Phosphorus is LOW → add DAP / SSP fertilizer.":p>100?"🟡 Phosphorus is HIGH → reduce phosphorus fertilizer.":"🟢 Phosphorus is OPTIMAL.",
+    k<40?"🔴 Potassium is LOW → add MOP / Potash fertilizer.":k>100?"🟡 Potassium is HIGH → reduce potash fertilizer.":"🟢 Potassium is OPTIMAL."
+  ];
+}
+function cropLocal(n,p,k,temp,hum,ph,rain){
+  const cr=[];
+  if(temp>=20&&temp<=35&&hum>=70&&rain>=150&&ph>=5.5&&ph<=7)cr.push({crop:"Rice",probability:88});
+  if(temp>=18&&temp<=35&&hum>=50&&hum<=85&&rain>=60&&rain<=110)cr.push({crop:"Maize",probability:78});
+  if(temp>=10&&temp<=25&&hum>=40&&hum<=80&&rain>=50&&rain<=100)cr.push({crop:"Wheat",probability:72});
+  if(temp>=21&&temp<=30&&k>=15&&k<=40)cr.push({crop:"Cotton",probability:65});
+  if(temp>=20&&temp<=38&&hum>=65&&rain>=100)cr.push({crop:"Sugarcane",probability:60});
+  if(temp>=15&&temp<=30&&hum<=70&&rain<=80)cr.push({crop:"Chickpea",probability:55});
+  if(cr.length===0)cr.push({crop:"Maize",probability:55},{crop:"Wheat",probability:30},{crop:"Rice",probability:15});
+  cr.sort((a,b)=>b.probability-a.probability);
+  const tot=cr.slice(0,3).reduce((s,c)=>s+c.probability,0);
+  return{best_crop:cr[0].crop,confidence:+(cr[0].probability/tot*100).toFixed(2),top3:cr.slice(0,3).map(c=>({crop:c.crop,probability:+(c.probability/tot*100).toFixed(2)}))};
+}
+
+async function predict(){
+  const btn=document.getElementById("predictBtn");
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span>Analyzing...';
+  const{N,P,K,ph,temp,hum,rain}=state;
+  let cropData,soilData,fertData,isReal=false;
+  if(apiOnline){
+    try{
+      const r=await fetch(API+"/predict",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({n:N,p:P,k:K,ph,temperature:temp,humidity:hum,rainfall:rain})});
+      const d=await r.json();
+      if(d.success&&!d.data.crop_prediction.error){cropData=d.data.crop_prediction;soilData=d.data.soil_health;fertData=d.data.fertilizer_advice;isReal=true;}
+    }catch(e){console.warn("API failed:",e);}
+  }
+  if(!cropData)cropData=cropLocal(N,P,K,temp,hum,ph,rain);
+  if(!soilData)soilData=soilLocal(N,P,K,ph);
+  if(!fertData)fertData=fertLocal(N,P,K);
+  renderResults(cropData,soilData,fertData,isReal);
+  btn.disabled=false;
+  btn.innerHTML="🚀 Analyze &amp; Predict";
+}
+
+function renderResults(crop,soil,fert,isReal){
+  const bc={Excellent:"badge-excellent",Good:"badge-good",Average:"badge-average",Poor:"badge-poor"}[soil.level]||"badge-average";
+  const sc=soil.score>=70?"linear-gradient(90deg,#52b788,#1a3d2b)":soil.score>=50?"linear-gradient(90deg,#f4a261,#e76f51)":"linear-gradient(90deg,#e63946,#c1121f)";
+  const desc={Excellent:"Excellent condition. Most crops will thrive.",Good:"Good health. Minor tweaks can boost yields.",Average:"Moderate health. Targeted amendments recommended.",Poor:"Needs significant improvement."}[soil.level]||"";
+  const top3=crop.top3||[{crop:crop.best_crop,probability:crop.confidence}];
+  const bars=top3.map(c=>`<div class="prob-item"><div class="prob-header"><span class="prob-name">${c.crop}</span><span class="prob-pct">${(+c.probability).toFixed(1)}%</span></div><div class="prob-track"><div class="prob-fill" style="width:${c.probability}%"></div></div></div>`).join('');
+  const tips=(Array.isArray(fert)?fert:[fert]).map(t=>`<div class="fert-item">${t}</div>`).join('');
+  document.getElementById("results").innerHTML=`
+    <div class="panel result-anim">
+      <div class="panel-title">🌾 Crop Recommendation</div>
+      <div class="crop-result">
+        <div class="crop-sublabel">Best Match for Your Conditions</div>
+        <div class="crop-name">${crop.best_crop}</div>
+        <div class="crop-conf">${(+crop.confidence).toFixed(1)}% confidence</div>
+        <div><span class="real-badge ${isReal?'real-yes':'real-no'}">${isReal?"✅ Real ML Prediction":"⚡ Demo — run api.py for real predictions"}</span></div>
+      </div>
+      <p style="font-size:.78rem;color:#6b7c70;margin-bottom:.8rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em">Top Crop Matches</p>
+      ${bars}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1.2rem">
+      <div class="panel result-anim" style="animation-delay:.1s">
+        <div class="panel-title">🌍 Soil Health Score</div>
+        <div class="score-display">
+          <div><div class="score-num">${soil.score}</div><div class="score-of">out of 100</div></div>
+          <div><div class="badge ${bc}">${soil.level}</div><div class="score-desc">${desc}</div></div>
+        </div>
+        <div class="score-track"><div class="score-fill" style="width:${soil.score}%;background:${sc}"></div></div>
+      </div>
+      <div class="panel result-anim" style="animation-delay:.2s">
+        <div class="panel-title">🧴 Fertilizer Advice</div>
+        ${tips}
+      </div>
+    </div>`;
+}
+
+document.querySelectorAll('input[type=range]').forEach(el=>{
+  el.style.setProperty('--pct',((el.value-el.min)/(el.max-el.min)*100).toFixed(1)+'%');
+});
+checkAPI();
+setInterval(checkAPI,8000);
+</script>
+</body>
+</html>
